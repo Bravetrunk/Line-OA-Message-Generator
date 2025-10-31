@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LINE OA Message Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Kanit', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      html {
+        font-size: 120%; /* Increase base font size by 20% */
+      }
+      textarea::-webkit-scrollbar {
+        width: 8px;
+      }
+      textarea::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-50 font-sans">
+    <div id="root">
+        <div class="p-4 md:p-8 min-h-screen text-black">
+          <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-8 border border-gray-200">
+            <h1 class="text-3xl font-bold text-black mb-2 flex items-center">
+              <svg class="w-8 h-8 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+              ตัวช่วยสร้างข้อความ LINE OA
+            </h1>
+            <p class="text-gray-600 mb-6 border-b pb-4">
+              สร้างข้อความสรุปรายการสั่งซื้อที่ครบถ้วน (ชื่อคนไข้, รายการ, ชำระเงิน, ที่อยู่, เบอร์ลูกค้า, ราคารวม, ติดต่อ)
+            </p>
+
+            <div class="space-y-6">
+              <!-- Quick Add & History Section -->
+              <div class="p-4 bg-white rounded-xl border border-gray-200 shadow-inner space-y-4">
+                <!-- Quick Add -->
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-black flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM3 11a1 1 0 100-2H2a1 1 0 100 2h1zM16 11a1 1 0 100-2h-1a1 1 0 100 2h1zM8 2a2 2 0 00-2 2v1H5a2 2 0 00-2 2v2H2a1 1 0 100 2h1v1a2 2 0 002 2h1v1a2 2 0 002 2h4a2 2 0 002-2v-1h1a2 2 0 002-2v-2h1a1 1 0 100-2h-1V7a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H8zM7 7h6v6H7V7z"></path></svg>
+                        รายการยา/สินค้าที่ใช้บ่อย
+                    </h3>
+                    <button id="toggle-edit-panel-btn" class="py-1 px-3 text-sm bg-gray-800 text-white rounded-lg hover:bg-black transition duration-150 shadow-md flex items-center">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      <span id="toggle-edit-panel-text">จัดการรายการ</span>
+                    </button>
+                </div>
+                <div id="quick-items-container" class="flex flex-wrap gap-2"></div>
+                <!-- Edit Quick Add Panel -->
+                <div id="edit-quick-item-panel" class="p-4 border-t border-gray-200 bg-white rounded-b-xl hidden">
+                   <h4 class="text-md font-bold mb-3 text-black">🛠️ เพิ่ม/แก้ไข รายการที่ใช้บ่อย</h4>
+                   <div id="quick-items-editor-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2"></div>
+                   <form id="add-quick-item-form" class="flex gap-2 items-center">
+                      <input type="text" name="newQuickItemName" placeholder="ชื่อสินค้าใหม่" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-sm flex-grow"/>
+                      <select name="newQuickItemUnit" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 w-24 p-2 text-sm"></select>
+                      <button type="submit" class="py-2 px-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-150 text-sm flex-shrink-0">เพิ่ม</button>
+                   </form>
+                </div>
+                <!-- Order History -->
+                <div class="pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-black flex items-center mb-2">
+                       <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm12 9a1 1 0 11-2 0 1 1 0 012 0zm-7 1a1 1 0 100-2 1 1 0 000 2zm-3-1a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
+                       ประวัติรายการสั่งซื้อ
+                    </h3>
+                    <div id="order-history-container" class="flex flex-wrap gap-2 mb-3"></div>
+                    <button id="save-order-btn" class="w-full py-2 px-3 text-sm bg-gray-800 text-white rounded-lg hover:bg-black transition duration-150 shadow-md flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-3m-1-4l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        บันทึกรายการนี้
+                    </button>
+                </div>
+              </div>
+
+              <button id="clear-form-btn" class="w-full py-2 px-4 border border-red-500 text-red-600 font-semibold rounded-lg hover:bg-red-50 transition duration-150 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center justify-center">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                ล้างฟอร์มนี้
+              </button>
+
+              <!-- Item List Input -->
+              <div>
+                <label class="block text-sm font-medium text-black mb-2">1. รายการสินค้า</label>
+                <div class="grid grid-cols-12 gap-3 mb-2 text-xs font-semibold text-gray-500 uppercase">
+                  <span class="col-span-4">ชื่อรายการ/รายละเอียด</span>
+                  <span class="col-span-2 text-center">จำนวน</span>
+                  <span class="col-span-2 text-center">หน่วย</span>
+                  <span class="col-span-3 text-right">ราคาต่อหน่วย</span>
+                  <span class="col-span-1"></span>
+                </div>
+                <div id="items-list-container" class="space-y-3"></div>
+                <button id="add-item-row-btn" class="mt-3 w-full py-2 px-4 border border-green-500 text-green-600 font-semibold rounded-lg hover:bg-green-50 transition duration-150 flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                  เพิ่มรายการสินค้า
+                </button>
+              </div>
+              
+              <!-- Payment Section -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-black mb-2">2. ช่องทางการชำระเงิน</label>
+                  <select id="payment-channel" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-lg">
+                    <option value="โอนเงิน">โอนเงิน (แนบสลิป)</option>
+                    <option value="เก็บเงินปลายทาง">เก็บเงินปลายทาง (COD)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-black mb-2">3. สถานะการชำระเงิน 🕒</label>
+                  <select id="payment-status" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-lg">
+                    <option value="รอชำระ">รอชำระ</option>
+                    <option value="สำเร็จ">ชำระเงินสำเร็จ</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Customer Details -->
+              <div class="space-y-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                          <label class="block text-sm font-medium text-black mb-2">4.1 ชื่อคนไข้/ลูกค้า 🧑</label>
+                          <input id="patient-name" type="text" placeholder="กรอกชื่อคนไข้/ลูกค้า" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-lg" />
+                      </div>
+                      <div>
+                          <label class="block text-sm font-medium text-black mb-2">4.2 เบอร์โทรศัพท์ลูกค้า 📱</label>
+                          <input id="customer-phone" type="tel" placeholder="กรอกเบอร์โทรศัพท์ลูกค้า" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-lg" />
+                      </div>
+                  </div>
+                  <div>
+                      <label class="block text-sm font-medium text-black mb-2">4.3 ที่อยู่สำหรับจัดส่ง</label>
+                      <textarea id="shipping-address" rows="4" placeholder="กรอกที่อยู่สำหรับจัดส่งสินค้า" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 resize-none"></textarea>
+                  </div>
+              </div>
+              
+              <!-- Price & Contact Section -->
+              <div class="grid grid-cols-2 gap-4">
+                  <div>
+                      <label class="block text-sm font-medium text-black mb-2">5.1 ค่าจัดส่ง 🚚</label>
+                      <div class="relative">
+                          <input id="shipping-fee" type="number" value="0" placeholder="เช่น 50" min="0" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-lg pr-16" />
+                          <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">บาท</span>
+                      </div>
+                  </div>
+                  <div>
+                      <label class="block text-sm font-medium text-black mb-2">5.2 ส่วนลดรวม 🏷️</label>
+                      <div class="relative">
+                          <input id="discount" type="number" value="0" placeholder="เช่น 20" min="0" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-lg pr-16" />
+                          <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">บาท</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="p-4 bg-white rounded-xl border border-gray-200 shadow-md">
+                  <div class="flex justify-between items-center text-xl font-bold text-black">
+                      <span>ยอดรวมสุทธิที่ต้องชำระ 💰</span>
+                      <span id="final-price">0.00 บาท</span>
+                  </div>
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-black mb-2">5.4 เบอร์โทรศัพท์ติดต่อ (ของร้านค้า) 📞</label>
+                  <input id="store-contact-phone" type="tel" placeholder="เช่น 099-1234567" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-lg" />
+              </div>
+
+              <button id="generate-message-btn" class="w-full py-3 px-4 bg-green-600 text-white font-semibold text-lg rounded-xl hover:bg-green-700 transition duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:bg-green-800">
+                <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                สร้างข้อความ
+              </button>
+            </div>
+            
+            <div id="generated-message-section" class="mt-6 border-t pt-6 hidden">
+              <h3 class="text-lg font-semibold text-black flex items-center mb-2">
+                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                ข้อความที่สร้าง (แก้ไขได้)
+              </h3>
+              <textarea id="generated-message-textarea" class="w-full p-3 border border-gray-300 rounded-lg h-64 resize-y bg-white text-black"></textarea>
+              <div class="mt-3 flex flex-col sm:flex-row gap-2">
+                <button id="copy-message-btn" class="flex-1 py-2 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-150 flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  คัดลอกข้อความ
+                </button>
+                <button id="hide-message-btn" class="flex-1 sm:flex-none py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition duration-150">
+                  ซ่อน
+                </button>
+              </div>
+            </div>
+
+            <div id="status-banner"></div>
+          </div>
+        </div>
+    </div>
+
+<script type="module">
+document.addEventListener('DOMContentLoaded', () => {
+    // --- CONSTANTS ---
+    const LS_QUICK_ITEMS_KEY = 'lineOaQuickItems';
+    const LS_HISTORY_KEY = 'lineOaOrderHistory';
+    const LS_CONFIG_KEY = 'lineOaStoreConfig';
+
+    const DEFAULT_QUICK_ITEMS = [
+      { name: 'ชุดยาแก้ปวด', unit: 'ชุด' },
+      { name: 'ยาแก้ปวดปลายประสาท', unit: 'ซอง' },
+      { name: 'วิตามินบำรุงอาการชา', unit: 'กระปุก' },
+    ];
+    const DEFAULT_STORE_CONFIG = { contactPhone: '' };
+    const UNIT_OPTIONS = ['ชุด', 'ซอง', 'เม็ด', 'กล่อง', 'แผง', 'ขวด', 'กระปุก', 'ชิ้น', 'อัน', 'อื่นๆ'];
+
+    // --- UTILITY FUNCTIONS ---
+    const loadFromLocalStorage = (key, defaultValue) => {
+        try {
+            const storedValue = localStorage.getItem(key);
+            return storedValue ? JSON.parse(storedValue) : defaultValue;
+        } catch (error) {
+            console.error(`Error loading from localStorage key "${key}":`, error);
+            return defaultValue;
+        }
+    };
+
+    const saveToLocalStorage = (key, value) => {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+            console.error(`Error saving to localStorage key "${key}":`, error);
+        }
+    };
+    
+    const formatNumber = (num) => {
+        const number = parseFloat(num) || 0;
+        return number.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
+
+    // --- DOM ELEMENTS ---
+    const dom = {
+        patientName: document.getElementById('patient-name'),
+        customerPhone: document.getElementById('customer-phone'),
+        shippingAddress: document.getElementById('shipping-address'),
+        shippingFee: document.getElementById('shipping-fee'),
+        discount: document.getElementById('discount'),
+        paymentChannel: document.getElementById('payment-channel'),
+        paymentStatus: document.getElementById('payment-status'),
+        storeContactPhone: document.getElementById('store-contact-phone'),
+        finalPrice: document.getElementById('final-price'),
+        itemsListContainer: document.getElementById('items-list-container'),
+        addItemRowBtn: document.getElementById('add-item-row-btn'),
+        clearFormBtn: document.getElementById('clear-form-btn'),
+        generateMessageBtn: document.getElementById('generate-message-btn'),
+        generatedMessageSection: document.getElementById('generated-message-section'),
+        generatedMessageTextarea: document.getElementById('generated-message-textarea'),
+        copyMessageBtn: document.getElementById('copy-message-btn'),
+        hideMessageBtn: document.getElementById('hide-message-btn'),
+        statusBanner: document.getElementById('status-banner'),
+        toggleEditPanelBtn: document.getElementById('toggle-edit-panel-btn'),
+        toggleEditPanelText: document.getElementById('toggle-edit-panel-text'),
+        editQuickItemPanel: document.getElementById('edit-quick-item-panel'),
+        quickItemsContainer: document.getElementById('quick-items-container'),
+        quickItemsEditorList: document.getElementById('quick-items-editor-list'),
+        addQuickItemForm: document.getElementById('add-quick-item-form'),
+        saveOrderBtn: document.getElementById('save-order-btn'),
+        orderHistoryContainer: document.getElementById('order-history-container'),
+    };
+    
+    // --- STATE MANAGEMENT ---
+    let state = {
+        items: [{ id: 1, name: '', qty: 1, unit: 'ชุด', price: 0 }],
+        quickItems: loadFromLocalStorage(LS_QUICK_ITEMS_KEY, DEFAULT_QUICK_ITEMS),
+        orderHistory: loadFromLocalStorage(LS_HISTORY_KEY, []),
+        storeConfig: loadFromLocalStorage(LS_CONFIG_KEY, DEFAULT_STORE_CONFIG),
+        isEditPanelVisible: false,
+    };
+
+    // --- RENDER FUNCTIONS ---
+    const renderItems = () => {
+        dom.itemsListContainer.innerHTML = '';
+        state.items.forEach(item => {
+            const itemRow = document.createElement('div');
+            itemRow.className = 'grid grid-cols-12 gap-3 items-center';
+            itemRow.dataset.id = item.id;
+            
+            const unitOptionsHtml = UNIT_OPTIONS.map(u => `<option value="${u}" ${item.unit === u ? 'selected' : ''}>${u}</option>`).join('');
+
+            itemRow.innerHTML = `
+              <div class="col-span-4">
+                <input type="text" data-field="name" value="${item.name}" placeholder="พิมพ์ชื่อสินค้า/รายการ" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-base" />
+              </div>
+              <div class="col-span-2">
+                 <input type="number" data-field="qty" value="${item.qty}" min="1" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-base text-center" />
+              </div>
+              <div class="col-span-2">
+                <select data-field="unit" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-base">
+                  ${unitOptionsHtml}
+                </select>
+              </div>
+               <div class="col-span-3">
+                 <input type="number" data-field="price" value="${item.price}" min="0" step="0.01" class="w-full p-2.5 bg-white text-black border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150 text-base text-right" />
+              </div>
+              <div class="col-span-1 flex justify-end">
+                <button class="remove-item-btn p-2 rounded-lg transition duration-150 bg-red-500 text-white hover:bg-red-600">
+                  <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </div>
+            `;
+            dom.itemsListContainer.appendChild(itemRow);
+        });
+        calculateFinalPrice();
+    };
+    
+    const renderQuickItems = () => {
+        dom.quickItemsContainer.innerHTML = '';
+        dom.quickItemsEditorList.innerHTML = '';
+
+        state.quickItems.forEach((item, index) => {
+            // Render quick add buttons
+            const button = document.createElement('button');
+            button.className = "py-1.5 px-3 text-sm bg-gray-100 hover:bg-gray-200 rounded-full text-black font-medium transition duration-150 shadow-sm border border-gray-300";
+            button.textContent = `+ ${item.name} (${item.unit})`;
+            button.onclick = () => handleAddItemFromMenu(item.name, item.unit);
+            dom.quickItemsContainer.appendChild(button);
+
+            // Render editor list
+            const editorItem = document.createElement('div');
+            editorItem.className = "flex justify-between items-center bg-gray-50 p-2 rounded-lg shadow-sm text-sm";
+            editorItem.innerHTML = `
+                <span class="text-black">${item.name} (${item.unit})</span>
+                <button data-index="${index}" class="quick-item-delete-btn text-red-500 hover:text-red-700 transition duration-150" title="ลบ">
+                  <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            `;
+            dom.quickItemsEditorList.appendChild(editorItem);
+        });
+    };
+    
+    const renderOrderHistory = () => {
+        dom.orderHistoryContainer.innerHTML = '';
+        state.orderHistory.forEach((order, index) => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'flex items-center space-x-1';
+            historyItem.innerHTML = `
+                <button data-index="${index}" class="load-order-btn py-1 px-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-full text-black font-medium transition duration-150 border border-gray-300">
+                  โหลด: ${order.patientName || 'รายการที่ไม่มีชื่อ'} (${formatNumber(order.finalPrice)} บ.)
+                </button>
+                <button data-index="${index}" class="delete-order-btn text-red-500 hover:text-red-700 p-1 rounded-full bg-gray-100/50">
+                    <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            `;
+            dom.orderHistoryContainer.appendChild(historyItem);
+        });
+    }
+
+    const calculateFinalPrice = () => {
+        const subtotal = state.items.reduce((acc, item) => acc + (item.qty * item.price), 0);
+        const total = subtotal + (Number(dom.shippingFee.value) || 0) - (Number(dom.discount.value) || 0);
+        const finalTotal = total < 0 ? 0 : total;
+        dom.finalPrice.textContent = `${formatNumber(finalTotal)} บาท`;
+        return finalTotal;
+    };
+    
+    const showStatus = (text, type = 'success') => {
+        const bgColor = type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+        dom.statusBanner.innerHTML = `<div class="mt-3 p-3 text-sm rounded-xl text-center ${bgColor}" role="alert">${text}</div>`;
+        setTimeout(() => { dom.statusBanner.innerHTML = ''; }, 3000);
+    };
+
+    // --- HANDLER FUNCTIONS ---
+    const handleAddItemRow = () => {
+        state.items.push({ id: Date.now(), name: '', qty: 1, unit: 'ชุด', price: 0 });
+        renderItems();
+    };
+
+    const handleAddItemFromMenu = (name, unit) => {
+        state.items.push({ id: Date.now(), name, qty: 1, unit, price: 0 });
+        renderItems();
+    }
+
+    const handleItemChange = (id, field, value) => {
+        const item = state.items.find(i => i.id === id);
+        if (item) {
+            if(field === 'qty' || field === 'price') {
+                item[field] = Number(value) || 0;
+            } else {
+                item[field] = value;
+            }
+        }
+        calculateFinalPrice();
+    };
+
+    const handleRemoveItemRow = (id) => {
+        state.items = state.items.filter(item => item.id !== id);
+        renderItems();
+    };
+    
+    const handleClearForm = () => {
+        state.items = [{ id: 1, name: '', qty: 1, unit: 'ชุด', price: 0 }];
+        dom.patientName.value = '';
+        dom.customerPhone.value = '';
+        dom.shippingAddress.value = '';
+        dom.shippingFee.value = 0;
+        dom.discount.value = 0;
+        dom.generatedMessageTextarea.value = '';
+        dom.generatedMessageSection.classList.add('hidden');
+        renderItems();
+        showStatus('ล้างฟอร์มสำเร็จแล้ว', 'success');
+    };
+    
+    const handleSaveCurrentOrder = () => {
+        const orderItems = state.items
+            .filter(i => i.name && i.qty > 0)
+            .map(({ id, ...rest }) => rest);
+            
+        if (orderItems.length === 0) {
+            showStatus("ไม่สามารถบันทึกได้: ไม่มีรายการสินค้าในฟอร์ม", 'error');
+            return;
+        }
+
+        const newOrder = {
+            timestamp: Date.now(),
+            patientName: dom.patientName.value,
+            customerPhone: dom.customerPhone.value,
+            shippingAddress: dom.shippingAddress.value,
+            shippingFee: Number(dom.shippingFee.value),
+            discount: Number(dom.discount.value),
+            items: orderItems,
+            finalPrice: calculateFinalPrice(),
+        };
+
+        state.orderHistory = [newOrder, ...state.orderHistory.slice(0, 9)];
+        saveToLocalStorage(LS_HISTORY_KEY, state.orderHistory);
+        renderOrderHistory();
+        showStatus("บันทึกรายการสำเร็จ!", 'success');
+    };
+
+    const handleLoadOrder = (index) => {
+        const order = state.orderHistory[index];
+        if (!order) return;
+        
+        dom.patientName.value = order.patientName;
+        dom.customerPhone.value = order.customerPhone;
+        dom.shippingAddress.value = order.shippingAddress;
+        dom.shippingFee.value = order.shippingFee;
+        dom.discount.value = order.discount;
+        state.items = order.items.map((item, i) => ({ ...item, id: Date.now() + i }));
+        renderItems();
+
+        showStatus(`โหลดรายการสั่งซื้อของ ${order.patientName || 'ลูกค้า'} สำเร็จ!`, 'success');
+    };
+
+    const handleDeleteOrderHistory = (index) => {
+        state.orderHistory = state.orderHistory.filter((_, i) => i !== index);
+        saveToLocalStorage(LS_HISTORY_KEY, state.orderHistory);
+        renderOrderHistory();
+        showStatus("ลบประวัติรายการสำเร็จ", 'success');
+    };
+
+    const handleGenerateMessage = () => {
+        const validItems = state.items.filter(i => i.name && i.qty > 0);
+        if (validItems.length === 0) return showStatus("กรุณากรอกรายการสินค้าให้ครบถ้วน อย่างน้อย 1 รายการ", 'error');
+        if (!dom.patientName.value) return showStatus("กรุณากรอกชื่อคนไข้/ลูกค้า", 'error');
+        if (!dom.shippingAddress.value) return showStatus("กรุณากรอกที่อยู่สำหรับจัดส่ง", 'error');
+        if (!dom.customerPhone.value) return showStatus("กรุณากรอกเบอร์โทรศัพท์ลูกค้า", 'error');
+        
+        const itemSubtotal = validItems.reduce((acc, item) => acc + (item.qty * item.price), 0);
+        const finalPrice = calculateFinalPrice();
+        
+        const header = "📦 สรุปรายการ";
+        const itemLines = validItems.map(item => `- ${item.name} ${item.qty} ${item.unit} (${formatNumber(item.price)} บ./หน่วย)`).join('\n');
+        
+        const priceDetails = [
+            `ยอดรวมสินค้า: ${formatNumber(itemSubtotal)} บาท`,
+            dom.shippingFee.value > 0 ? `ค่าจัดส่ง: ${formatNumber(dom.shippingFee.value)} บาท` : null,
+            dom.discount.value > 0 ? `ส่วนลดรวม: -${formatNumber(dom.discount.value)} บาท` : null,
+        ].filter(Boolean).join('\n');
+
+        const totalLine = `\n💰 ยอดรวมสุทธิ ${formatNumber(finalPrice)} บาท`;
+        const customerInfo = `\n--- ข้อมูลลูกค้าและจัดส่ง ---\n🧑 ชื่อคนไข้/ลูกค้า: ${dom.patientName.value}\n📱 เบอร์โทรลูกค้า: ${dom.customerPhone.value}\n🏠 ที่อยู่สำหรับจัดส่ง:\n${dom.shippingAddress.value}`;
+        
+        let paymentInfo = `\n--- รายละเอียดการชำระ ---\n💸 ช่องทาง: ${dom.paymentChannel.value}\n${dom.paymentStatus.value === 'สำเร็จ' ? '✅ สถานะ: ชำระเงินสำเร็จ' : '⏳ สถานะ: รอชำระ'}`;
+        let closingMessage = "";
+
+        if (dom.paymentChannel.value === 'โอนเงิน') {
+            closingMessage = dom.paymentStatus.value === 'รอชำระ' 
+                ? "⚠️ กรุณาโอนเงินและส่งสลิปเพื่อยืนยันการสั่งซื้อ ขอบคุณครับ 🙏" 
+                : "ขอบคุณที่ใช้บริการครับ 🙏";
+        } else {
+            closingMessage = "📢 จัดส่งแบบเก็บเงินปลายทาง (COD) รบกวนเตรียมเงินสดให้พร้อมรับสินค้าครับ 🙏";
+        }
+
+        const contactLine = state.storeConfig.contactPhone ? `📞 ติดต่อร้านค้า: ${state.storeConfig.contactPhone}` : '';
+        
+        const finalMessage = [header, itemLines, "\n--- สรุปราคา ---", priceDetails, totalLine, customerInfo, paymentInfo, contactLine, "\n" + closingMessage]
+            .filter(Boolean).join('\n').trim();
+
+        dom.generatedMessageTextarea.value = finalMessage;
+        dom.generatedMessageSection.classList.remove('hidden');
+        showStatus("สร้างข้อความสำเร็จ!", 'success');
+    };
+
+    // --- EVENT LISTENERS ---
+    dom.addItemRowBtn.addEventListener('click', handleAddItemRow);
+    dom.clearFormBtn.addEventListener('click', handleClearForm);
+    dom.generateMessageBtn.addEventListener('click', handleGenerateMessage);
+    
+    dom.itemsListContainer.addEventListener('input', e => {
+        const target = e.target;
+        const row = target.closest('[data-id]');
+        if (row && (target.tagName === 'INPUT' || target.tagName === 'SELECT')) {
+            const id = Number(row.dataset.id);
+            const field = target.dataset.field;
+            handleItemChange(id, field, target.value);
+        }
+    });
+
+    dom.itemsListContainer.addEventListener('click', e => {
+        if (e.target.closest('.remove-item-btn')) {
+            const row = e.target.closest('[data-id]');
+            handleRemoveItemRow(Number(row.dataset.id));
+        }
+    });
+    
+    [dom.shippingFee, dom.discount].forEach(el => el.addEventListener('input', calculateFinalPrice));
+    
+    dom.storeContactPhone.addEventListener('input', e => {
+        state.storeConfig.contactPhone = e.target.value;
+        saveToLocalStorage(LS_CONFIG_KEY, state.storeConfig);
+    });
+
+    dom.copyMessageBtn.addEventListener('click', () => {
+        if (!dom.generatedMessageTextarea.value) {
+            showStatus("ไม่มีข้อความให้คัดลอก", 'error');
+            return;
+        }
+        navigator.clipboard.writeText(dom.generatedMessageTextarea.value)
+            .then(() => showStatus("คัดลอกข้อความลงคลิปบอร์ดแล้ว", 'success'))
+            .catch(() => showStatus("คัดลอกไม่สำเร็จ", 'error'));
+    });
+
+    dom.hideMessageBtn.addEventListener('click', () => {
+        dom.generatedMessageSection.classList.add('hidden');
+    });
+
+    dom.toggleEditPanelBtn.addEventListener('click', () => {
+        state.isEditPanelVisible = !state.isEditPanelVisible;
+        dom.editQuickItemPanel.classList.toggle('hidden');
+        dom.toggleEditPanelText.textContent = state.isEditPanelVisible ? 'ซ่อน' : 'จัดการรายการ';
+    });
+    
+    dom.quickItemsEditorList.addEventListener('click', e => {
+        const button = e.target.closest('.quick-item-delete-btn');
+        if(button) {
+            const index = parseInt(button.dataset.index, 10);
+            state.quickItems = state.quickItems.filter((_, i) => i !== index);
+            saveToLocalStorage(LS_QUICK_ITEMS_KEY, state.quickItems);
+            renderQuickItems();
+        }
+    });
+
+    dom.addQuickItemForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const nameInput = e.target.elements.newQuickItemName;
+        const unitInput = e.target.elements.newQuickItemUnit;
+        if (nameInput.value) {
+            state.quickItems.push({ name: nameInput.value, unit: unitInput.value });
+            saveToLocalStorage(LS_QUICK_ITEMS_KEY, state.quickItems);
+            renderQuickItems();
+            e.target.reset();
+        }
+    });
+
+    dom.saveOrderBtn.addEventListener('click', handleSaveCurrentOrder);
+
+    dom.orderHistoryContainer.addEventListener('click', e => {
+        const loadBtn = e.target.closest('.load-order-btn');
+        if (loadBtn) {
+            handleLoadOrder(parseInt(loadBtn.dataset.index, 10));
+            return;
+        }
+        const deleteBtn = e.target.closest('.delete-order-btn');
+        if (deleteBtn) {
+            handleDeleteOrderHistory(parseInt(deleteBtn.dataset.index, 10));
+        }
+    });
+    
+    // --- INITIALIZATION ---
+    const initialize = () => {
+        dom.storeContactPhone.value = state.storeConfig.contactPhone;
+        const unitSelect = dom.addQuickItemForm.elements.newQuickItemUnit;
+        unitSelect.innerHTML = UNIT_OPTIONS.map(u => `<option value="${u}">${u}</option>`).join('');
+        
+        renderItems();
+        renderQuickItems();
+        renderOrderHistory();
+    };
+
+    initialize();
+});
+</script>
+
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

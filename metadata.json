@@ -1,0 +1,5 @@
+{
+  "name": "LINE OA Message Generator",
+  "description": "A single-file tool to generate comprehensive order summary messages for LINE Official Account, featuring quick-add items, order history, and dynamic price calculations.",
+  "requestFramePermissions": []
+}
